@@ -1,0 +1,49 @@
+version: '3.7'
+services:
+    mysql_masterslave_master:
+        build: 
+            context: .
+            dockerfile: ./mysql/Dockerfile
+        container_name: "mysql_masterslave_master"
+        hostname: "master"
+        # restart: always
+        env_file: ./mysql/master/.env.master
+        cap_add:
+            - all
+        ports:
+            - "3301:3306"
+        volumes:
+            - ./db/master:/var/lib/mysql
+            - ./etc/master:/etc/mysql/conf.d
+        environment:
+            - TZ:UTC
+            - MYSQL_USER:master
+            - MYSQL_PASSWORD:master123
+            - MYSQL_ROOT_PASSWORD:rootmaster123
+        networks:
+            - mysql_masterslave
+    mysql_masterslave_slave:
+        build: 
+            context: .
+            dockerfile: ./mysql/Dockerfile
+        container_name: "mysql_masterslave_slave"
+        hostname: "slave"
+        # restart: always
+        env_file: ./mysql/slave/.env.slave
+        cap_add:
+            - all
+        ports:
+            - "3302:3306"
+        volumes:
+            - ./db/slave:/var/lib/mysql
+            - ./etc/slave:/etc/mysql/conf.d
+        environment:
+            - TZ:UTC
+            - MYSQL_USER:slave
+            - MYSQL_PASSWORD:slave123
+            - MYSQL_ROOT_PASSWORD:rootslave123
+        networks:
+            - mysql_masterslave
+networks:
+    mysql_masterslave:
+        driver: bridge

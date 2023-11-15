@@ -1,0 +1,28 @@
+Reference
+https://sesamedisk.com/docker-mysql-master-slave-replication-with-docker/
+
+Steps
+1. Login using root user in master container
+    mysql -u root -p
+2. Create user for replications
+    CREATE USER 'replication'@'%' IDENTIFIED WITH mysql_native_password BY 'Slaverepl123';
+3. Grant user replication access
+    GRANT REPLICATION SLAVE ON *.* TO 'replication'@'%';
+4. Examine replication
+    SHOW GRANTS FOR replication@'%';
+5. Get master binary log
+    SHOW MASTER STATUS\G
+
+6. Login using root user in slave container
+    mysql -u root -p
+7. Add slave to join master
+    CHANGE MASTER TO
+    MASTER_HOST='master',
+    MASTER_USER='replication',
+    MASTER_PASSWORD='slaverepl123',
+    MASTER_LOG_FILE='87e8982d00d1-bin.000004',
+    MASTER_LOG_POS=349;
+8. Start slave
+    START SLAVE;
+9. Check slave status
+    SHOW SLAVE STATUS\G
